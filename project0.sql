@@ -37,5 +37,5 @@ create table transactions (
 	transaction_id serial,
 	account_number int unique references accounts (account_number),
 	t_type text not null,
-	t_amount numeric(10,2) not null
+	t_amount int not null
 );
