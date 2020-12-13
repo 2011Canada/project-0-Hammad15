@@ -29,7 +29,7 @@ public class CustomerPostgresDAO implements CustomerDAO {
 			ResultSet res = getUser.executeQuery();
 			if(res.next()) {
 				Customer u = new Customer();
-				u.setCustomer_id(res.getInt("user_id"));
+				u.setCustomer_id(res.getInt("customer_id"));
 				u.setFirstName(res.getString("first_name"));
 				u.setLastName(res.getString("last_name"));
 				u.setUsername(res.getString("username"));
