@@ -7,7 +7,7 @@ create table employees (
 	first_name text not null,
 	last_name text not null,
 	username text unique not null,
-	pasword text not null
+	"password" text not null
 );
 
 create table customers (
@@ -15,7 +15,7 @@ create table customers (
 	first_name text not null,
 	last_name text not null,
 	username text unique not null,
-	pasword text not null
+	"password" text not null
 );
 
 create table applications (
@@ -39,3 +39,6 @@ create table transactions (
 	t_type text not null,
 	t_amount int not null
 );
+
+--insert into customers (first_name)
+--values (hammad);

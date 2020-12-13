@@ -10,6 +10,10 @@ public interface CustomerDAO {
 	
 	public Customer findCustomerByUsernameAndPassword(String username, String password) throws UserNotFoundException, InternalErrorException;
 	
+	public void makeNewCustomer(String firstName, String lastName, String username, String password);
+	
 	public List<Customer> findAll();
+	
+	public List<String> getAllUsernames();
 
 }
