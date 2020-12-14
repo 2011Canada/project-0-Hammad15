@@ -4,6 +4,8 @@ public class Account {
 	
 	private int accountNumber;
 	
+	private String username;
+	
 	private int accountBalance;
 
 	public Account() {
@@ -11,9 +13,10 @@ public class Account {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Account(int accountNumber, int accountBalance) {
+	public Account(int accountNumber, String username, int accountBalance) {
 		super();
 		this.accountNumber = accountNumber;
+		this.username = username;
 		this.accountBalance = accountBalance;
 	}
 
@@ -23,6 +26,14 @@ public class Account {
 
 	public void setAccountNumber(int accountNumber) {
 		this.accountNumber = accountNumber;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public int getAccountBalance() {
@@ -35,7 +46,8 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "Account [accountNumber=" + accountNumber + ", accountBalance=" + accountBalance + "]";
+		return "Account [accountNumber=" + accountNumber + ", username=" + username + ", accountBalance="
+				+ accountBalance + "]\n";
 	}
 
 	@Override
@@ -44,6 +56,7 @@ public class Account {
 		int result = 1;
 		result = prime * result + accountBalance;
 		result = prime * result + accountNumber;
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
 
@@ -59,6 +72,11 @@ public class Account {
 		if (accountBalance != other.accountBalance)
 			return false;
 		if (accountNumber != other.accountNumber)
+			return false;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
 			return false;
 		return true;
 	}

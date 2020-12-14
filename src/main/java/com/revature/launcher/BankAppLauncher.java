@@ -13,6 +13,8 @@ import com.revature.menus.EmployeeLogin;
 import com.revature.menus.LoginMenu;
 import com.revature.models.Application;
 import com.revature.models.Customer;
+import com.revature.repositories.AccountDAO;
+import com.revature.repositories.AccountPostgresDAO;
 import com.revature.repositories.CustomerDAO;
 import com.revature.repositories.CustomerPostgresDAO;
 import com.revature.util.ConnectionFactory;
@@ -48,9 +50,11 @@ public class BankAppLauncher {
 		
 		Customer cust = new Customer();
 		
-		//Application app = new Application();
+		Application app = new Application();
 		
 		CustomerDAO custDAO = new CustomerPostgresDAO();
+		
+		AccountDAO accDAO = new AccountPostgresDAO();
 		
 		System.out.println(custDAO.getAllUsernames());
 		
@@ -72,14 +76,62 @@ public class BankAppLauncher {
 			switch (n) {
 			
 			case 1:
+				boolean exit = false;
+				
 				System.out.println(EmployeeLogin.display());
 				System.out.print("Username: ");
 				username = sc.next();
 				System.out.print("Password: ");
 				password = sc.next();
-				break;
 				
+				while (!exit) {
+					
+				System.out.println("Please select what would you like to do next:\n" +
+									"1. View a pending application\n" +
+									"2. View all bank accounts\n" +
+									"3. View all transactions\n" +
+									"4. Exit");
+				
+				System.out.print("Your choice: ");
+				
+				int x = sc.nextInt();
+				
+				switch (x) {
+				case 1: 
+					if (accDAO.findApplicationTypes().contains("pending")) {
+						app = accDAO.findPendingApplication();
+						System.out.println(app);
+						System.out.println("Press 1 if you want to approve the application, enter 2 if you want to reject it");
+						System.out.print("Your choice: ");
+						int y = sc.nextInt();
+						switch (y) {
+						case 1:
+							accDAO.approveBankAccount(app.getUsername(), app.getStartingBalance());
+							break;
+						case 2:
+							accDAO.rejectBankAccount(app.getUsername());
+							break;
+						}
+					} else {
+						System.out.println("There are no pending applications");
+					}
+					break;
+					
+				case 2:
+					System.out.println(accDAO.findAllAccounts());
+					break;
+				case 3:
+					System.out.println(accDAO.findAllTransactions());
+					break;
+				case 4: 
+					exit = true;
+					break;
+				}
+				  }
+				break;
 			case 2:
+				exit = false;
+				
 				System.out.println(CustomerLogin.display());
 				System.out.print("Username: ");
 				username = sc.next();
@@ -97,6 +149,8 @@ public class BankAppLauncher {
 					System.out.println("OOPS, something went wrong.\n\n");
 				}
 				
+				while (!exit) {
+				
 				System.out.println("Welcome to your account");
 				
 				System.out.println("Please enter the following details to create a bank account");
@@ -106,12 +160,11 @@ public class BankAppLauncher {
 				int credit_score = sc.nextInt();
 				System.out.print("Yearly Salary: ");
 				int yearly_salary = sc.nextInt();
-				
-				Application app = new Application();
+
 				app.setUsername(cust.getUsername());
 				
 				app = custDAO.accountApplication(app.getUsername(), starting_balance, credit_score, yearly_salary);
-				
+				}
 				break;
 				
 			case 3: 

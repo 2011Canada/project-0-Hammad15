@@ -41,10 +41,3 @@ create table transactions (
 	t_type text not null,
 	t_amount int not null
 );
-
---select * from customers where username = 'Hammad' and "password" = 't.brennan' ;
---insert into customers (first_name)
---values (hammad);
-
-insert into customers (first_name, last_name, username, "password") values ('Tristan', 'Brennan', 't.brennan', 'brennan');
-insert into customers (first_name, last_name, username, "password") values ('Mohammed', 'Hamza', 'm.hamza', 'hamza');

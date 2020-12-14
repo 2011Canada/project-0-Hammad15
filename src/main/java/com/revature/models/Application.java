@@ -11,19 +11,23 @@ public class Application {
 	private int creditScore;
 	
 	private int yearlySalary;
+	
+	private String applicationStatus;
 
 	public Application() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Application(int application_id, String username, int startingBalance, int creditScore, int yearlySalary) {
+	public Application(int application_id, String username, int startingBalance, int creditScore, int yearlySalary,
+			String applicationStatus) {
 		super();
 		this.application_id = application_id;
 		this.username = username;
 		this.startingBalance = startingBalance;
 		this.creditScore = creditScore;
 		this.yearlySalary = yearlySalary;
+		this.applicationStatus = applicationStatus;
 	}
 
 	public int getApplication_id() {
@@ -66,23 +70,31 @@ public class Application {
 		this.yearlySalary = yearlySalary;
 	}
 
+	public String getApplicationStatus() {
+		return applicationStatus;
+	}
+
+	public void setApplicationStatus(String applicationStatus) {
+		this.applicationStatus = applicationStatus;
+	}
+
 	@Override
 	public String toString() {
 		return "Application [application_id=" + application_id + ", username=" + username + ", startingBalance="
-				+ startingBalance + ", creditScore=" + creditScore + ", yearlySalary=" + yearlySalary + "]";
+				+ startingBalance + ", creditScore=" + creditScore + ", yearlySalary=" + yearlySalary
+				+ ", applicationStatus=" + applicationStatus + "]\n";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((applicationStatus == null) ? 0 : applicationStatus.hashCode());
 		result = prime * result + application_id;
 		result = prime * result + creditScore;
 		result = prime * result + startingBalance;
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(yearlySalary);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + yearlySalary;
 		return result;
 	}
 
@@ -95,6 +107,11 @@ public class Application {
 		if (getClass() != obj.getClass())
 			return false;
 		Application other = (Application) obj;
+		if (applicationStatus == null) {
+			if (other.applicationStatus != null)
+				return false;
+		} else if (!applicationStatus.equals(other.applicationStatus))
+			return false;
 		if (application_id != other.application_id)
 			return false;
 		if (creditScore != other.creditScore)
@@ -106,7 +123,7 @@ public class Application {
 				return false;
 		} else if (!username.equals(other.username))
 			return false;
-		if (Double.doubleToLongBits(yearlySalary) != Double.doubleToLongBits(other.yearlySalary))
+		if (yearlySalary != other.yearlySalary)
 			return false;
 		return true;
 	}
