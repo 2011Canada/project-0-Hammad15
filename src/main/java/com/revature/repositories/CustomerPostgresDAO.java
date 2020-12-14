@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
+import com.revature.models.Application;
 import com.revature.models.Customer;
 
 
@@ -50,7 +51,31 @@ public class CustomerPostgresDAO implements CustomerDAO {
 	
 
 	public List<Customer> findAll() {
-		// TODO Auto-generated method stub
+		
+		Connection conn = cf.getConnection();
+		try {
+			String sql = "select * from customers;";
+			PreparedStatement getUsers = conn.prepareStatement(sql);
+			
+			ResultSet res = getUsers.executeQuery();
+			List<Customer> customers = new ArrayList<Customer>();
+			while(res.next()) {
+				Customer c = new Customer();
+				c.setCustomer_id(res.getInt("customer_id"));
+				c.setFirstName(res.getString("first_name"));
+				c.setLastName(res.getString("last_name"));
+				c.setUsername(res.getString("username"));
+				c.setPassword(res.getString("password"));
+				customers.add(c);
+			}
+			return customers;
+		}catch(SQLException e) {
+			e.printStackTrace();
+//			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
+		
 		return null;
 	}
 
@@ -60,7 +85,7 @@ public class CustomerPostgresDAO implements CustomerDAO {
 		
 		Connection conn = cf.getConnection();
 		try {
-			String sql = "insert into customers (first_name, last_name, username, \"password\") values (?, ?, ?, ?)";
+			String sql = "insert into customers (first_name, last_name, username, \"password\") values (?, ?, ?, ?);";
 			
 //			String sql = "insert into customers (first_name, last_name, username, \"password\") values (?, ?, ?, ?)" +
 //					" returning customer_id, first_name, last_name, username, \"password\";";
@@ -107,18 +132,51 @@ public class CustomerPostgresDAO implements CustomerDAO {
 			PreparedStatement selectUsernames = conn.prepareStatement(sql);
 			
 			ResultSet res = selectUsernames.executeQuery();
-			if(res.next()) {
+			while(res.next()) {
 				String username = res.getString("username");
 				usernames.add(username);
 			}
-			
 		}catch(SQLException e) {
 			e.printStackTrace();
 			//throw new InternalErrorException();
 		} finally {
 			cf.releaseConnection(conn);
 			}
-		
 		return usernames;
+
+	}
+
+
+
+	public Application accountApplication(String username, int startingBalance, int creditScore, int yearlySalary) {
+		Connection conn = cf.getConnection();
+		try {
+			String sql = "insert into applications (username, starting_balance, credit_score, yearly_salary) values (?, ?, ?, ?)"
+							+ "returning application_id, username, starting_balance, credit_score, yearly_salary;";
+			PreparedStatement submitApplication = conn.prepareStatement(sql);
+			submitApplication.setString(1, username);
+			submitApplication.setInt(2, startingBalance);
+			submitApplication.setInt(3, creditScore);
+			submitApplication.setInt(4, yearlySalary);
+			
+			ResultSet res = submitApplication.executeQuery();
+			if(res.next()) {
+				Application app = new Application();
+				app.setApplication_id(res.getInt("application_id"));
+				app.setStartingBalance(res.getInt("starting_balance"));
+				app.setCreditScore(res.getInt("credit_score"));
+				app.setYearlySalary(res.getInt("yearly_salary"));
+				return app;
+			}
+			
+			System.out.println("You application has been submitted. Please check back in later to see if it was approved");
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			//throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
+		return null;
 	}
 }

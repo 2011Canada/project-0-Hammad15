@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
+import com.revature.models.Application;
 import com.revature.models.Customer;
 
 public interface CustomerDAO {
@@ -15,5 +16,7 @@ public interface CustomerDAO {
 	public List<Customer> findAll();
 	
 	public List<String> getAllUsernames();
+	
+	public Application accountApplication(String username, int startingBalance, int creditScore, int yearlySalary);
 
 }

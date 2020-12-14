@@ -10,14 +10,14 @@ public class Application {
 	
 	private int creditScore;
 	
-	private double yearlySalary;
+	private int yearlySalary;
 
 	public Application() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Application(int application_id, String username, int startingBalance, int creditScore, double yearlySalary) {
+	public Application(int application_id, String username, int startingBalance, int creditScore, int yearlySalary) {
 		super();
 		this.application_id = application_id;
 		this.username = username;
@@ -58,11 +58,11 @@ public class Application {
 		this.creditScore = creditScore;
 	}
 
-	public double getYearlySalary() {
+	public int getYearlySalary() {
 		return yearlySalary;
 	}
 
-	public void setYearlySalary(double yearlySalary) {
+	public void setYearlySalary(int yearlySalary) {
 		this.yearlySalary = yearlySalary;
 	}
 
