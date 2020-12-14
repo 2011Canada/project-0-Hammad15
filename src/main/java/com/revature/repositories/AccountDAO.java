@@ -2,6 +2,9 @@ package com.revature.repositories;
 
 import java.util.List;
 
+import com.revature.exceptions.AccountNotFoundException;
+import com.revature.exceptions.InternalErrorException;
+import com.revature.exceptions.UserNotFoundException;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Transaction;
@@ -20,7 +23,7 @@ public interface AccountDAO {
 	
 	public List<Transaction> findAllTransactions();
 	
-	public Account viewAccount(String username);
+	public Account viewAccount(String username) throws AccountNotFoundException, InternalErrorException;
 	
 	public void deposit(String username, int depositAmount);
 	

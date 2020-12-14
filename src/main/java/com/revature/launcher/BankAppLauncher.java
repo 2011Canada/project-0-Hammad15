@@ -5,12 +5,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
 import com.revature.menus.CustomerLogin;
 import com.revature.menus.CustomerRegister;
 import com.revature.menus.EmployeeLogin;
 import com.revature.menus.LoginMenu;
+import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Customer;
 import com.revature.repositories.AccountDAO;
@@ -51,6 +53,8 @@ public class BankAppLauncher {
 		Customer cust = new Customer();
 		
 		Application app = new Application();
+		
+		Account acc = new Account();
 		
 		CustomerDAO custDAO = new CustomerPostgresDAO();
 		
@@ -147,24 +151,92 @@ public class BankAppLauncher {
 				} catch (InternalErrorException e) {
 					e.getMessage();
 					System.out.println("OOPS, something went wrong.\n\n");
+					break;
 				}
 				
 				while (!exit) {
-				
-				System.out.println("Welcome to your account");
-				
-				System.out.println("Please enter the following details to create a bank account");
-				System.out.print("Initial Deposit: ");
-				int starting_balance = sc.nextInt();
-				System.out.print("Credit Score: ");
-				int credit_score = sc.nextInt();
-				System.out.print("Yearly Salary: ");
-				int yearly_salary = sc.nextInt();
-
-				app.setUsername(cust.getUsername());
-				
-				app = custDAO.accountApplication(app.getUsername(), starting_balance, credit_score, yearly_salary);
-				}
+					
+					System.out.println("Please select what would you like to do next:\n" +
+							"1. View your bank account\n" +
+							"2. Create a bank account\n" +
+							"3. Exit");
+		
+					System.out.print("Your choice: ");
+		
+					int x = sc.nextInt();
+					
+					switch (x) {
+					case 1:
+						try {
+							acc = accDAO.viewAccount(cust.getUsername());
+							System.out.println(acc);
+						} catch (AccountNotFoundException e) {
+							// TODO Auto-generated catch block
+							System.out.println("Account Not Found\nPlease submit an application to open a bank account.\n\n");
+							e.printStackTrace();
+							break;
+						} catch (InternalErrorException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							break;
+						}
+						while (!exit) {
+						System.out.println("Please select what would you like to do next:\n" +
+								"1. Deposit money in to your account\n" +
+								"2. Withdraw money from your account\n" +
+								"3. Transfer money to someone else's account\n" +
+								"4. Exit");
+						int y = sc.nextInt();
+						
+						switch (y) {
+						case 1:
+							System.out.println("Please enter the amount you want to deposit");
+							System.out.print("Amount: ");
+							int deposit = sc.nextInt();
+							accDAO.deposit(cust.getUsername(), deposit);
+							break;
+						case 2:
+							System.out.println("Please enter the amount you want to withdraw");
+							System.out.print("Amount: ");
+							int withdraw = sc.nextInt();
+							accDAO.withdraw(cust.getUsername(), withdraw);
+							break;
+						case 3:
+							System.out.println("Please enter the amount you want to transfer the account number of the recipient");
+							System.out.print("Amount: ");
+							int transfer = sc.nextInt();
+							System.out.print("Account Number: ");
+							int accountNum = sc.nextInt();
+							accDAO.postTransfer(cust.getUsername(), transfer, accountNum);
+							break;
+						case 4:
+							exit = true;
+							break;
+							default:
+								System.out.println("Invalid input");
+								}
+						}
+						break;
+					case 2:
+						System.out.println("Please enter the following details to create a bank account");
+						System.out.print("Initial Deposit: ");
+						int starting_balance = sc.nextInt();
+						System.out.print("Credit Score: ");
+						int credit_score = sc.nextInt();
+						System.out.print("Yearly Salary: ");
+						int yearly_salary = sc.nextInt();
+		
+						app.setUsername(cust.getUsername());
+						
+						app = custDAO.accountApplication(app.getUsername(), starting_balance, credit_score, yearly_salary);
+						break;
+					case 3:
+						exit = true;
+						break;
+						default:
+							System.out.println("Invalid input");
+							}
+					}
 				break;
 				
 			case 3: 

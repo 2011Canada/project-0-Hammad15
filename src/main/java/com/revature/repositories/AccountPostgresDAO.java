@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
 import com.revature.models.Account;
@@ -132,9 +133,30 @@ public class AccountPostgresDAO implements AccountDAO {
 		return null;
 	}
 
-	public Account viewAccount(String username) {
-		// TODO Auto-generated method stub
-		return null;
+	public Account viewAccount(String username) throws AccountNotFoundException, InternalErrorException {
+		Connection conn = cf.getConnection();
+		try {
+			String sql = "select * from accounts where username = ?;";
+			PreparedStatement getAccount = conn.prepareStatement(sql);
+			getAccount.setString(1, username);
+			
+			ResultSet res = getAccount.executeQuery();
+			if(res.next()) {
+				Account a = new Account();
+				a.setAccountNumber(res.getInt("account_number"));
+				a.setUsername(res.getString("username"));
+				a.setAccountBalance(res.getInt("account_balance"));
+				return a;
+			}else {
+				throw new AccountNotFoundException();
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
 	}
 
 	public void deposit(String username, int depositAmount) {
