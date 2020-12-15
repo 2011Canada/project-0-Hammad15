@@ -130,7 +130,7 @@ public class AccountPostgresDAO implements AccountDAO {
 
 			while(res.next()) {
 				Account a = new Account();
-				a.setAccountNumber(res.getInt("account_id"));
+				a.setAccountNumber(res.getInt("account_number"));
 				a.setUsername(res.getString("username"));
 				a.setAccountBalance(res.getInt("account_balance"));
 				accounts.add(a);
