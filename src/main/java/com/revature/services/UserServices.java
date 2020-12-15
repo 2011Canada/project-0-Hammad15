@@ -4,9 +4,11 @@ import java.util.Scanner;
 
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
+import com.revature.exceptions.TransferNotFoundException;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Customer;
+import com.revature.models.Transfer;
 import com.revature.repositories.AccountDAO;
 import com.revature.repositories.AccountPostgresDAO;
 import com.revature.repositories.CustomerDAO;
@@ -20,8 +22,6 @@ public class UserServices {
 		
 		Account acc = new Account();
 		
-		Customer cust = new Customer();
-		
 		Scanner sc = new Scanner(System.in);
 		
 		boolean exit = false;
@@ -30,12 +30,10 @@ public class UserServices {
 			acc = accDAO.viewAccount(username);
 			System.out.println(acc);
 		} catch (AccountNotFoundException e) {
-			// TODO Auto-generated catch block
 			System.out.println("Account Not Found\nPlease submit an application to open a bank account.\n\n");
 			e.printStackTrace();
 			return;
 		} catch (InternalErrorException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
 		}
@@ -43,8 +41,9 @@ public class UserServices {
 		System.out.println("Please select what would you like to do next:\n" +
 				"1. Deposit money in to your account\n" +
 				"2. Withdraw money from your account\n" +
-				"3. Transfer money to someone else's account\n" +
-				"4. Exit");
+				"3. Send money to someone\n" +
+				"4. Receive money from someone\n " +
+				"5. Exit");
 		
 		System.out.print("Your choice: ");
 		
@@ -52,26 +51,26 @@ public class UserServices {
 		
 		switch (y) {
 		case 1:
-			System.out.println("Please enter the amount you want to deposit");
-			System.out.print("Amount: ");
-			int deposit = sc.nextInt();
-			accDAO.deposit(cust.getUsername(), deposit, acc.getAccountNumber());
+			
+			UserServices.depositMoney(acc.getUsername(), acc.getAccountNumber());
 			break;
+			
 		case 2:
-			System.out.println("Please enter the amount you want to withdraw");
-			System.out.print("Amount: ");
-			int withdraw = sc.nextInt();
-			accDAO.withdraw(cust.getUsername(), withdraw, acc.getAccountNumber());
+			
+			UserServices.withdrawMoney(acc.getUsername(), acc.getAccountNumber());
 			break;
+			
 		case 3:
-			System.out.println("Please enter the amount you want to transfer the account number of the recipient");
-			System.out.print("Amount: ");
-			int transfer = sc.nextInt();
-			System.out.print("Account Number: ");
-			int accountNum = sc.nextInt();
-			accDAO.postTransfer(cust.getUsername(), transfer, accountNum);
+			
+			UserServices.sendMoney(acc.getUsername(), acc.getAccountNumber());
 			break;
+		
 		case 4:
+			
+			UserServices.receiveMoney(acc.getAccountNumber());
+			break;
+		
+		case 5:
 			exit = true;
 			break;
 			default:
@@ -132,27 +131,74 @@ public class UserServices {
 		
 	}
 	
-	public static void depositMoney() {
+	public static void depositMoney(String username, int accountNumber) {
 		
+		Scanner sc = new Scanner(System.in);
 		
+		AccountDAO accDAO = new AccountPostgresDAO();
 		
-	}
-	
-	public static void withdrawMoney() {
-		
-		
-		
-	}
-	
-	public static void sendMoney() {
-		
-		
+		System.out.println("Please enter the amount you want to deposit");
+		System.out.print("Amount: ");
+		int deposit = sc.nextInt();
+		accDAO.deposit(username, deposit, accountNumber);
 		
 	}
 	
-	public static void recieveMoney() {
+	public static void withdrawMoney(String username, int accountNumber) {
 		
+		Scanner sc = new Scanner(System.in);
 		
+		AccountDAO accDAO = new AccountPostgresDAO();
+		
+		System.out.println("Please enter the amount you want to withdraw");
+		System.out.print("Amount: ");
+		int withdraw = sc.nextInt();
+		accDAO.withdraw(username, withdraw, accountNumber);
+		
+	}
+	
+	public static void sendMoney(String username, int accountNumber) {
+		
+		Scanner sc = new Scanner(System.in);
+		
+		AccountDAO accDAO = new AccountPostgresDAO();
+		
+		System.out.println("Please enter the amount you want to transfer the account number of the recipient");
+		System.out.print("Amount: ");
+		int transfer = sc.nextInt();
+		System.out.print("Account Number: ");
+		int accountNum = sc.nextInt();
+		accDAO.postTransfer(username, accountNumber, transfer, accountNum);
+		
+	}
+	
+	public static void receiveMoney(int recAccountNumber) {
+		
+		Scanner sc = new Scanner(System.in);
+		
+		AccountDAO accDAO = new AccountPostgresDAO();
+		
+		Transfer t = new Transfer();
+		
+		try {
+			t = accDAO.checkTransfer(recAccountNumber);
+		} catch (TransferNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("No pending transfers to approve.");
+			return;
+		} catch (InternalErrorException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		System.out.println("You have amount waiting to be deposited.\n" + 
+							t + "\n" +
+							"Enter 1 if you want to approve the transfer");
+		System.out.print("Your Choice: ");
+		int choice = sc.nextInt();
+		
+		if (choice == 1) accDAO.receiveTransfer(t.getTransferAmount(), recAccountNumber);
+		else System.out.println("Invalid input");
 		
 	}
 

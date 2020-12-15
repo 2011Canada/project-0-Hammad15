@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
+import com.revature.exceptions.TransferNotFoundException;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Transaction;
+import com.revature.models.Transfer;
 
 public interface AccountDAO {
 	
@@ -28,6 +30,10 @@ public interface AccountDAO {
 	
 	public void withdraw(String username, int withdrawAmount, int accountNumber);
 	
-	public void postTransfer(String username, int amount, int accountNumber);
+	public void postTransfer(String username, int accountNumber, int amount, int recAccountNumber);
+	
+	public Transfer checkTransfer(int recAccountNumber) throws TransferNotFoundException, InternalErrorException;
+	
+	public void receiveTransfer(int transferAmount, int recAccountNumber);
 
 }

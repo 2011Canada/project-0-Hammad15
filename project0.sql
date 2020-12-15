@@ -41,3 +41,10 @@ create table transactions (
 	t_type text not null,
 	t_amount int not null
 );
+
+create table transfers (
+	from_account_number int references accounts (account_number),
+	amount int not null,
+	to_account_number int,
+	status text default 'pending'
+);

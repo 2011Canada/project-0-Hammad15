@@ -6,12 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
+import com.revature.exceptions.TransferNotFoundException;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Transaction;
+import com.revature.models.Transfer;
 import com.revature.util.ConnectionFactory;
 
 public class AccountPostgresDAO implements AccountDAO {
@@ -224,14 +225,13 @@ public class AccountPostgresDAO implements AccountDAO {
 			
 			conn.commit();
 			
+			System.out.println("Congratulations! $" + depositAmount + " has been added to your account.");
+			
 		}catch(SQLException e) {
 			e.printStackTrace();
 		} finally {
 			cf.releaseConnection(conn);
-			}
-		
-		System.out.println("Congratulations! $" + depositAmount + " has been added to your account.");
-		
+			}	
 	}
 
 	public void withdraw(String username, int withdrawAmount, int accountNumber) {
@@ -256,19 +256,118 @@ public class AccountPostgresDAO implements AccountDAO {
 			
 			conn.commit();
 			
+			System.out.println("Congratulations! You have withdrawn $" + withdrawAmount + " from your account.");
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			cf.releaseConnection(conn);
+			}		
+	}
+
+	public void postTransfer(String username, int accountNumber, int amount, int recAccountNumber) {
+
+		Connection conn = cf.getConnection();
+		try {
+			conn.setAutoCommit(false);
+			
+			String sql1 = "update accounts set account_balance = account_balance - ? where username = ?;";
+			PreparedStatement send = conn.prepareStatement(sql1);
+			send.setInt(1, amount);
+			send.setString(2, username);
+			send.executeUpdate();
+			
+			String sql2 = "insert into transactions (account_number, t_type, t_amount) values (?, ?, ?);";
+			String tType = "transfer out";
+			PreparedStatement insertTransaction = conn.prepareStatement(sql2);
+			insertTransaction.setInt(1, accountNumber);
+			insertTransaction.setString(2, tType);
+			insertTransaction.setInt(3, amount);
+			insertTransaction.executeUpdate();
+			
+			String sql3 = "insert into transfers (from_account_number, amount, to_account_number, status) values (?, ?, ?);";
+			PreparedStatement insertTransfer = conn.prepareStatement(sql3);
+			insertTransfer.setInt(1, accountNumber);
+			insertTransfer.setInt(2, amount);
+			insertTransfer.setInt(3, recAccountNumber);
+			insertTransfer.executeUpdate();
+			
+			conn.commit();
+			
+			System.out.println("Congratulations! You have transferred $" + amount + " to the bank account, " + recAccountNumber + ".");
+			
 		}catch(SQLException e) {
 			e.printStackTrace();
 		} finally {
 			cf.releaseConnection(conn);
 			}
-		
-		System.out.println("Congratulations! You have withdrawn $" + withdrawAmount + " from your account.");
-		
 	}
 
-	public void postTransfer(String username, int amount, int accountNumber) {
-		// TODO Auto-generated method stub
+	public Transfer checkTransfer(int recAccountNumber) throws TransferNotFoundException, InternalErrorException {
+
+		Connection conn = cf.getConnection();
+		try {
+			String sql = "select * from transfers where to_account_number = ?;";
+			PreparedStatement getTransfer = conn.prepareStatement(sql);
+			getTransfer.setInt(1, recAccountNumber);
+			
+			ResultSet res = getTransfer.executeQuery();
+			if(res.next()) {
+				Transfer t = new Transfer();
+				t.setAccountNumber(res.getInt("from_account_number"));
+				t.setTransferAmount(res.getInt("amount"));
+				t.setRecAccountNumber(res.getInt("to_account_number"));
+				t.setTransferStatus(res.getString("status"));
+				return t;
+			}else {
+				throw new TransferNotFoundException();
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
 		
 	}
+	
+	public void receiveTransfer(int transferAmount, int recAccountNumber) {
+		
+		Connection conn = cf.getConnection();
+		try {
+			conn.setAutoCommit(false);
+			
+			String sql1 = "update accounts set account_balance = account_balance + ? where account_number = ?;";
+			PreparedStatement receive = conn.prepareStatement(sql1);
+			receive.setInt(1, transferAmount);
+			receive.setInt(2, recAccountNumber);
+			receive.executeUpdate();
+			
+			String sql2 = "insert into transactions (account_number, t_type, t_amount) values (?, ?, ?);";
+			String tType = "transfer in";
+			PreparedStatement insertTransaction = conn.prepareStatement(sql2);
+			insertTransaction.setInt(1, recAccountNumber);
+			insertTransaction.setString(2, tType);
+			insertTransaction.setInt(3, transferAmount);
+			insertTransaction.executeUpdate();
+			
+			String sql3 = "update transfers set status = 'accepted' where to_account_number = ?;";
+			PreparedStatement insertTransfer = conn.prepareStatement(sql3);
+			insertTransfer.setInt(1, recAccountNumber);
+			insertTransfer.executeUpdate();
+			
+			conn.commit();
+			
+			System.out.println("Congratulations! You have accepted a transfer of $" + transferAmount);
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			cf.releaseConnection(conn);
+			}
+	}
+
+	
 
 }
