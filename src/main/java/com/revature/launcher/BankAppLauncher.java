@@ -193,13 +193,13 @@ public class BankAppLauncher {
 							System.out.println("Please enter the amount you want to deposit");
 							System.out.print("Amount: ");
 							int deposit = sc.nextInt();
-							accDAO.deposit(cust.getUsername(), deposit);
+							accDAO.deposit(cust.getUsername(), deposit, acc.getAccountNumber());
 							break;
 						case 2:
 							System.out.println("Please enter the amount you want to withdraw");
 							System.out.print("Amount: ");
 							int withdraw = sc.nextInt();
-							accDAO.withdraw(cust.getUsername(), withdraw);
+							accDAO.withdraw(cust.getUsername(), withdraw, acc.getAccountNumber());
 							break;
 						case 3:
 							System.out.println("Please enter the amount you want to transfer the account number of the recipient");

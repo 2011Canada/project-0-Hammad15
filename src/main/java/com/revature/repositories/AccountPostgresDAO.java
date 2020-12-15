@@ -9,10 +9,8 @@ import java.util.List;
 
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
-import com.revature.exceptions.UserNotFoundException;
 import com.revature.models.Account;
 import com.revature.models.Application;
-import com.revature.models.Customer;
 import com.revature.models.Transaction;
 import com.revature.util.ConnectionFactory;
 
@@ -104,14 +102,11 @@ public class AccountPostgresDAO implements AccountDAO {
 		
 		Connection conn = cf.getConnection();
 		try {
-			conn.setAutoCommit(false);
 			
 			String sql = "update applications set application_status = 'rejected' where username = ?;";
 			PreparedStatement updateType = conn.prepareStatement(sql);
 			updateType.setString(1, username);
 			updateType.executeUpdate();
-			
-			conn.commit();
 			
 		}catch(SQLException e) {
 			e.printStackTrace();
@@ -124,12 +119,60 @@ public class AccountPostgresDAO implements AccountDAO {
 	}
 
 	public List<Account> findAllAccounts() {
-		// TODO Auto-generated method stub
+		
+		Connection conn = cf.getConnection();
+		try {
+			List<Account> accounts = new ArrayList<Account>();
+			String sql = "select * from accounts;";
+			PreparedStatement getAccounts = conn.prepareStatement(sql);
+			
+			ResultSet res = getAccounts.executeQuery();
+
+			while(res.next()) {
+				Account a = new Account();
+				a.setAccountNumber(res.getInt("account_id"));
+				a.setUsername(res.getString("username"));
+				a.setAccountBalance(res.getInt("account_balance"));
+				accounts.add(a);
+			}
+			return accounts;
+		}catch(SQLException e) {
+			e.printStackTrace();
+//			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
+		
 		return null;
+
 	}
 
 	public List<Transaction> findAllTransactions() {
-		// TODO Auto-generated method stub
+		
+		Connection conn = cf.getConnection();
+		try {
+			List<Transaction> transactions = new ArrayList<Transaction>();
+			String sql = "select * from transactions;";
+			PreparedStatement getTransactions = conn.prepareStatement(sql);
+			
+			ResultSet res = getTransactions.executeQuery();
+
+			while(res.next()) {
+				Transaction t = new Transaction();
+				t.setTransaction_id(res.getInt("transaction_id"));
+				t.setAccountNumber(res.getInt("account_number"));
+				t.setTransactionType(res.getString("t_type"));
+				t.setTransactionAmount(res.getInt("t_amount"));
+				transactions.add(t);
+			}
+			return transactions;
+		}catch(SQLException e) {
+			e.printStackTrace();
+//			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
+		
 		return null;
 	}
 
@@ -159,13 +202,67 @@ public class AccountPostgresDAO implements AccountDAO {
 		}
 	}
 
-	public void deposit(String username, int depositAmount) {
-		// TODO Auto-generated method stub
+	public void deposit(String username, int depositAmount, int accountNumber) {
+		
+		Connection conn = cf.getConnection();
+		try {
+			conn.setAutoCommit(false);
+			
+			String sql1 = "update accounts set account_balance = account_balance + ? where username = ?;";
+			PreparedStatement deposit = conn.prepareStatement(sql1);
+			deposit.setInt(1, depositAmount);
+			deposit.setString(2, username);
+			deposit.executeUpdate();
+			
+			String sql2 = "insert into transactions (account_number, t_type, t_amount) values (?, ?, ?);";
+			String tType = "deposit";
+			PreparedStatement insertTransaction = conn.prepareStatement(sql2);
+			insertTransaction.setInt(1, accountNumber);
+			insertTransaction.setString(2, tType);
+			insertTransaction.setInt(3, depositAmount);
+			insertTransaction.executeUpdate();
+			
+			conn.commit();
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			cf.releaseConnection(conn);
+			}
+		
+		System.out.println("Congratulations! $" + depositAmount + " has been added to your account.");
 		
 	}
 
-	public void withdraw(String username, int withdrawAmount) {
-		// TODO Auto-generated method stub
+	public void withdraw(String username, int withdrawAmount, int accountNumber) {
+		
+		Connection conn = cf.getConnection();
+		try {
+			conn.setAutoCommit(false);
+			
+			String sql1 = "update accounts set account_balance = account_balance - ? where username = ?;";
+			PreparedStatement withdraw = conn.prepareStatement(sql1);
+			withdraw.setInt(1, withdrawAmount);
+			withdraw.setString(2, username);
+			withdraw.executeUpdate();
+			
+			String sql2 = "insert into transactions (account_number, t_type, t_amount) values (?, ?, ?);";
+			String tType = "withdraw";
+			PreparedStatement insertTransaction = conn.prepareStatement(sql2);
+			insertTransaction.setInt(1, accountNumber);
+			insertTransaction.setString(2, tType);
+			insertTransaction.setInt(3, withdrawAmount);
+			insertTransaction.executeUpdate();
+			
+			conn.commit();
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		} finally {
+			cf.releaseConnection(conn);
+			}
+		
+		System.out.println("Congratulations! You have withdrawn $" + withdrawAmount + " from your account.");
 		
 	}
 
