@@ -5,6 +5,7 @@ import java.util.Scanner;
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.TransferNotFoundException;
+import com.revature.launcher.BankAppLauncher;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Customer;
@@ -31,10 +32,11 @@ public class UserServices {
 			System.out.println(acc);
 		} catch (AccountNotFoundException e) {
 			System.out.println("Account Not Found\nPlease submit an application to open a bank account.\n\n");
-			e.printStackTrace();
+			e.getMessage();
 			return;
 		} catch (InternalErrorException e) {
-			e.printStackTrace();
+			e.getMessage();
+			System.out.println("OOPS, something went wrong.\n\n");
 			return;
 		}
 		while (!exit) {
@@ -128,6 +130,8 @@ public class UserServices {
 		password = sc.next();
 		
 		custDAO.makeNewCustomer(firstName, lastName, username, password);
+		
+		BankAppLauncher.bankLogger.debug("A customer account was created.");
 		
 	}
 	

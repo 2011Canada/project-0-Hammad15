@@ -259,6 +259,7 @@ public class AccountPostgresDAO implements AccountDAO {
 			System.out.println("Congratulations! You have withdrawn $" + withdrawAmount + " from your account.");
 			
 		}catch(SQLException e) {
+			System.out.println("Transaction failed! Account will go in overdraft.");
 			e.printStackTrace();
 		} finally {
 			cf.releaseConnection(conn);
@@ -285,7 +286,7 @@ public class AccountPostgresDAO implements AccountDAO {
 			insertTransaction.setInt(3, amount);
 			insertTransaction.executeUpdate();
 			
-			String sql3 = "insert into transfers (from_account_number, amount, to_account_number, status) values (?, ?, ?);";
+			String sql3 = "insert into transfers (from_account_number, amount, to_account_number) values (?, ?, ?);";
 			PreparedStatement insertTransfer = conn.prepareStatement(sql3);
 			insertTransfer.setInt(1, accountNumber);
 			insertTransfer.setInt(2, amount);
@@ -297,6 +298,7 @@ public class AccountPostgresDAO implements AccountDAO {
 			System.out.println("Congratulations! You have transferred $" + amount + " to the bank account, " + recAccountNumber + ".");
 			
 		}catch(SQLException e) {
+			System.out.println("Transaction failed! Account will go in overdraft.");
 			e.printStackTrace();
 		} finally {
 			cf.releaseConnection(conn);

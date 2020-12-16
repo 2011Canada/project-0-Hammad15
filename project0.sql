@@ -30,7 +30,7 @@ create table applications (
 create table accounts (
 	account_number serial primary key,
 	username text unique not null references customers (username),
-	account_balance int not null
+	account_balance int not null check (account_balance >= 0)
 );
 
 ALTER SEQUENCE accounts_account_number_seq RESTART WITH 123000;

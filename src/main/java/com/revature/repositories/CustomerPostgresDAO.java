@@ -12,6 +12,7 @@ import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
 import com.revature.models.Application;
 import com.revature.models.Customer;
+import com.revature.models.Employee;
 
 
 
@@ -48,7 +49,35 @@ public class CustomerPostgresDAO implements CustomerDAO {
 		}
 	}
 	
-	
+	public Employee findEmployeeByUsernameAndPassword(String username, String password) throws UserNotFoundException, InternalErrorException {
+		
+		Connection conn = cf.getConnection();
+		try {
+			String sql = "select * from employees where username = ? and \"password\" = ? ;";
+			PreparedStatement getUser = conn.prepareStatement(sql);
+			getUser.setString(1, username);
+			getUser.setString(2, password);
+			
+			ResultSet res = getUser.executeQuery();
+			if(res.next()) {
+				Employee e = new Employee();
+				e.setEmployee_id(res.getInt("employee_id"));
+				e.setFirstName(res.getString("first_name"));
+				e.setLastName(res.getString("last_name"));
+				e.setUsername(res.getString("username"));
+				e.setPassword(res.getString("password"));
+				return e;
+			}else {
+				throw new UserNotFoundException();
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+			throw new InternalErrorException();
+		} finally {
+			cf.releaseConnection(conn);
+		}
+	}
 
 	public List<Customer> findAll() {
 		
@@ -179,4 +208,5 @@ public class CustomerPostgresDAO implements CustomerDAO {
 		}
 		return null;
 	}
+
 }

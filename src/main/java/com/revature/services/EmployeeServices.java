@@ -35,7 +35,7 @@ public class EmployeeServices {
 		
 	}
 	
-	public static void viewAllAccounts() {
+	public void viewAllAccounts() {
 		
 		AccountDAO accDAO = new AccountPostgresDAO();
 		

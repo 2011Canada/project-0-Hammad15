@@ -5,6 +5,7 @@ import java.util.Scanner;
 import com.revature.exceptions.AccountNotFoundException;
 import com.revature.exceptions.InternalErrorException;
 import com.revature.exceptions.UserNotFoundException;
+import com.revature.launcher.BankAppLauncher;
 import com.revature.models.Account;
 import com.revature.models.Application;
 import com.revature.models.Customer;
@@ -50,6 +51,8 @@ public class CustomerLogin {
 		}
 		
 		//app.setUsername(cust.getUsername());
+		
+		BankAppLauncher.bankLogger.debug("A customer logged in.");
 		
 		while (!exit) {
 			

@@ -2,11 +2,10 @@ package com.revature.menus;
 
 import java.util.Scanner;
 
-import com.revature.models.Account;
-import com.revature.models.Application;
-import com.revature.models.Customer;
-import com.revature.repositories.AccountDAO;
-import com.revature.repositories.AccountPostgresDAO;
+import com.revature.exceptions.InternalErrorException;
+import com.revature.exceptions.UserNotFoundException;
+import com.revature.launcher.BankAppLauncher;
+import com.revature.models.Employee;
 import com.revature.repositories.CustomerDAO;
 import com.revature.repositories.CustomerPostgresDAO;
 import com.revature.services.EmployeeServices;
@@ -14,6 +13,12 @@ import com.revature.services.EmployeeServices;
 public class EmployeeLogin {
 	
 	public static void display() {
+		
+		EmployeeServices es = new EmployeeServices();
+		
+		Employee emp = new Employee();
+		
+		CustomerDAO custDAO = new CustomerPostgresDAO();
 		
 		String username;
 		
@@ -29,6 +34,20 @@ public class EmployeeLogin {
 		username = sc.next();
 		System.out.print("Password: ");
 		password = sc.next();
+		
+		try {
+			emp = custDAO.findEmployeeByUsernameAndPassword(username, password);
+		} catch (UserNotFoundException e) {
+			e.getMessage();
+			System.out.println("User Not Found\nYou will be returned to the main menu.\n\n");
+			return;
+		} catch (InternalErrorException e) {
+			e.getMessage();
+			System.out.println("OOPS, something went wrong.\n\n");
+			return;
+		}
+		
+		BankAppLauncher.bankLogger.debug("An employee logged in.");
 		
 		while (!exit) {
 			
@@ -50,7 +69,7 @@ public class EmployeeLogin {
 			
 		case 2:
 			
-			EmployeeServices.viewAllAccounts();
+			es.viewAllAccounts();
 			break;
 			
 		case 3:
